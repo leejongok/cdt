@@ -90,9 +90,60 @@ void dbtest2() {
 	return ;
 }
 
+//---------------------------------------------------------------------
+int callback(void *, int, char **, char **);
+
+void testSelect() {
+	sqlite3 *db;
+	char *err_msg = 0;
+
+	int rc = sqlite3_open("c:\\test.sqlite", &db);
+
+	if (rc != SQLITE_OK) {
+
+		fprintf(stderr, "Cannot open database: %s\n",
+				sqlite3_errmsg(db));
+		sqlite3_close(db);
+
+		return ;
+	}
+
+	char *sql = "SELECT * FROM Cars";
+
+	rc = sqlite3_exec(db, sql, callback, 0, &err_msg);
+
+	if (rc != SQLITE_OK ) {
+
+		fprintf(stderr, "Failed to select data\n");
+		fprintf(stderr, "SQL error: %s\n", err_msg);
+
+		sqlite3_free(err_msg);
+		sqlite3_close(db);
+
+		return ;
+	}
+
+	sqlite3_close(db);
+}
+int callback(void *NotUsed, int argc, char **argv,
+                    char **azColName) {
+
+    NotUsed = 0;
+
+    for (int i = 0; i < argc; i++) {
+
+        printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+    }
+
+    printf("\n");
+
+    return 0;
+}
+//---------------------------------------------------------------------
 int main() {
 	puts("!!!Hello World!!!"); /* prints !!!Hello World!!! */
 	version();
-	dbtest2();
+	//dbtest2();
+	testSelect();
 	return EXIT_SUCCESS;
 }
